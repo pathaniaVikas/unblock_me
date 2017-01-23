@@ -59,38 +59,81 @@ def add_relation_dict(child, parent):
 
 def add_new_state(new_state, parent_state):
     '''
-    Using md5 checksum of map as key in dictionary as python does not
-    entertain lists as keys in dict as they are mutable.
-    returns 0 if no child added or 1 otherwise
-    used to track total no of child for current parent
+    Using md5 checksum of map as key in dictionary since python does not
+    entertain lists as keys in dict as lists are mutable.
     '''
     hs = hashlib.md5(str(new_state).encode())
     if visited_states_dict.get(hs.hexdigest()):
-        return 0
+        return
     #print(new_state)
     visited_states_dict[hs.hexdigest()] = 1
     states_queue.put(new_state)
     add_relation_dict(new_state, parent_state)
-    return 1
+    return
 
-def check_right(puzzle_map, row, col, added):
+def check_below(puzzle_map, row, col):
     if puzzle_map[row+1][col] == 4 :
         new_state = new_map(puzzle_map)
         new_state[row][col] = 4
         new_state[row+2][col] = 0
-        added += add_new_state(new_state, puzzle_map)
+        add_new_state(new_state, puzzle_map)
     elif puzzle_map[row + 1][col]==6:
         new_state = new_map(puzzle_map)
         new_state[row][col] = 6
         new_state[row+3][col] = 0
-        added += add_new_state(new_state, puzzle_map)
-    return added
+        add_new_state(new_state, puzzle_map)
+
+def check_right(puzzle_map, row, col):
+    if puzzle_map[row][col+1] == 2 :
+        new_state = new_map(puzzle_map)
+        new_state[row][col] = 2
+        new_state[row][col+2] = 0
+        add_new_state(new_state, puzzle_map)
+    elif puzzle_map[row][col+1]==3:
+        new_state = new_map(puzzle_map)
+        new_state[row][col] = 3
+        new_state[row][col+3] = 0
+        add_new_state(new_state, puzzle_map)
+
+    if puzzle_map[row][col+1] == 5 :
+        new_state = new_map(puzzle_map)
+        new_state[row][col] = 5
+        new_state[row][col+2] = 0
+        add_new_state(new_state, puzzle_map)
+
+def check_left(puzzle_map, row, col):
+    if puzzle_map[row][col-1] == 2 :
+        new_state = new_map(puzzle_map)
+        new_state[row][col] = 2
+        new_state[row][col-2] = 0
+        add_new_state(new_state, puzzle_map)
+    elif puzzle_map[row][col-1]==3:
+        new_state = new_map(puzzle_map)
+        new_state[row][col] = 3
+        new_state[row][col-3] = 0
+        add_new_state(new_state, puzzle_map)
+
+    if puzzle_map[row][col-1] == 5 :
+        new_state = new_map(puzzle_map)
+        new_state[row][col] = 5
+        new_state[row][col-2] = 0
+        add_new_state(new_state, puzzle_map)
+
+def check_up(puzzle_map, row, col):
+    if puzzle_map[row-1][col] == 4 :
+        new_state = new_map(puzzle_map)
+        new_state[row][col] = 4
+        new_state[row-2][col] = 0
+        add_new_state(new_state, puzzle_map)
+    elif puzzle_map[row-1][col]==6:
+        new_state = new_map(puzzle_map)
+        new_state[row][col] = 6
+        new_state[row-3][col] = 0
+        add_new_state(new_state, puzzle_map)
 
 def make_move(puzzle_map):
     #search for zeroes in puzzle map and change state
     row = 0
-    # added used to count total childs added
-    added = 0
     while row <=5:
         col = 0
         while col <= 5:
@@ -99,363 +142,73 @@ def make_move(puzzle_map):
                 if row==0:
                     if col == 0:
                         # check for right and below only
-                        if puzzle_map[row+1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row+2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row + 1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row+3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col+1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col+1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col+3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col+1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
+                        check_right(puzzle_map, row, col)
+                        check_below(puzzle_map, row, col)
                     elif col == 5:
                         # check for left and below only
-                        if puzzle_map[row+1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row+2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row + 1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row+3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col-1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col-1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col-3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col-1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
+                        check_left(puzzle_map, row, col)
+                        check_below(puzzle_map, row, col)
                     else:
                         # check for left, right and below only
-                        if puzzle_map[row+1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row+2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row + 1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row+3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col+1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col+1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col+3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col-1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col-1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col-3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col+1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col-1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
+                        check_left(puzzle_map, row, col)
+                        check_right(puzzle_map, row, col)
+                        check_below(puzzle_map, row, col)
                 elif row==5:
                     if col == 0:
                         # check for right and up only
-                        if puzzle_map[row][col+1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col+1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col+3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        if puzzle_map[row-1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row-2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row-1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row-3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col+1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
+                        check_right(puzzle_map, row, col)
+                        check_up(puzzle_map, row, col)
                     elif col == 5:
                         # check for left and up only
-                        if puzzle_map[row-1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row-2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row-1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row-3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col-1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col-1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col-3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col-1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
+                        check_left(puzzle_map, row, col)
+                        check_up(puzzle_map, row, col)
                     else:
                         # check for left, right and up only
-                        if puzzle_map[row-1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row-2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row-1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row-3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col-1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col-1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col-3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        if puzzle_map[row][col+1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col+1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col+3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col+1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col-1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
+                        check_left(puzzle_map, row, col)
+                        check_right(puzzle_map, row, col)
+                        check_up(puzzle_map, row, col)
                 else:
                     if col == 0:
                         # check for right, up and down only
-                        if puzzle_map[row][col+1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col+1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col+3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row-1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row-2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row-1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row-3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row+1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row+2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row + 1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row+3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col+1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
+                        check_right(puzzle_map, row, col)
+                        check_up(puzzle_map, row, col)
+                        check_below(puzzle_map, row, col)
                     elif col == 5:
                         # check for left, up and down only
-                        if puzzle_map[row][col-1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col-1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col-3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row-1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row-2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row-1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row-3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row+1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row+2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row + 1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row+3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col-1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
+                        check_left(puzzle_map, row, col)
+                        check_up(puzzle_map, row, col)
+                        check_below(puzzle_map, row, col)
                     else:
                         # check for left, right, up and down all
-                        if puzzle_map[row][col-1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col-1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col-3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                            
-                        if puzzle_map[row-1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row-2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row-1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row-3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row+1][col] == 4 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 4
-                            new_state[row+2][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row + 1][col]==6:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 6
-                            new_state[row+3][col] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col+1] == 2 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 2
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-                        elif puzzle_map[row][col+1]==3:
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 3
-                            new_state[row][col+3] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col+1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col+2] = 0
-                            added += add_new_state(new_state, puzzle_map)
-
-                        if puzzle_map[row][col-1] == 5 :
-                            new_state = new_map(puzzle_map)
-                            new_state[row][col] = 5
-                            new_state[row][col-2] = 0
-                            added += add_new_state(new_state, puzzle_map)
+                        check_left(puzzle_map, row, col)
+                        check_right(puzzle_map, row, col)
+                        check_up(puzzle_map, row, col)
+                        check_below(puzzle_map, row, col)
             col += 1
         row += 1
-    return added
 
-def print_path(final_state):
-    print(final_state)
+from queue import LifoQueue
+def get_path(final_state):
+    final_path = LifoQueue()
+    final_path.put(final_state)
+
     hs = hashlib.md5(str(final_state).encode())
+
     while relation_dict[hs.hexdigest()]:
         hs = hashlib.md5(str(final_state).encode())
         parent = relation_dict[hs.hexdigest()]
         final_state = parent
-        print(parent)
+        if parent:
+            final_path.put(parent)
+
+    return final_path
+
+def print_path(final_path):
+    while not final_path.empty():
+        state = final_path.get()
+        for row in state:
+            print(row)
+        print()
 
 def start():
     add_new_state(puzzle_map_start, None)
@@ -463,7 +216,8 @@ def start():
         search_state = states_queue.get()
         if check_final_state(search_state):
             print("found answer")
-            print_path(search_state)
+            fp = get_path(search_state)
+            print_path(fp)
             return
         else:
             make_move(search_state)
